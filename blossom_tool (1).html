@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BLOSSOM — ハーブメンバーズ</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Noto+Serif+JP:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #faf6f0;
+    --parchment: #f2ebe0;
+    --sage: #7a8c6e;
+    --sage-light: #a8b89a;
+    --sage-dark: #4a5c40;
+    --gold: #b8955a;
+    --gold-light: #d4b47a;
+    --brown: #6b4f35;
+    --text: #2c2416;
+    --text-muted: #8a7560;
+    --border: rgba(120, 100, 60, 0.2);
+    --shadow: rgba(44, 36, 22, 0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Serif JP', serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+    font-weight: 300;
+  }
+
+  /* ===== LOGIN ===== */
+  #login-screen {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--cream);
+    position: relative;
+    overflow: hidden;
+  }
+
+  #login-screen::before {
+    content: '';
+    position: absolute;
+    top: -100px; left: -100px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(168,184,154,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  #login-screen::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; right: -80px;
+    width: 350px; height: 350px;
+    background: radial-gradient(circle, rgba(184,149,90,0.1) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .login-card {
+    background: white;
+    border: 1px solid var(--border);
+    padding: 56px 48px;
+    width: 100%;
+    max-width: 400px;
+    position: relative;
+    animation: fadeUp 0.8s ease both;
+  }
+
+  .login-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 32px; right: 32px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+
+  .login-logo {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .login-logo .brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    font-weight: 300;
+    letter-spacing: 0.3em;
+    color: var(--sage-dark);
+  }
+
+  .login-logo img.logo-img {
+    width: 160px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    opacity: 0.88;
+  }
+
+  .login-logo .sub {
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    color: var(--text-muted);
+    margin-top: 6px;
+  }
+
+  .login-logo .divider {
+    width: 40px;
+    height: 1px;
+    background: var(--gold);
+    margin: 16px auto;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .form-group input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    background: var(--cream);
+    font-family: 'Noto Serif JP', serif;
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .form-group input:focus {
+    border-color: var(--sage);
+    background: white;
+  }
+
+  .btn-primary {
+    width: 100%;
+    padding: 14px;
+    background: var(--sage-dark);
+    color: white;
+    border: none;
+    font-family: 'Noto Serif JP', serif;
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 8px;
+  }
+
+  .btn-primary:hover { background: var(--sage); }
+  .btn-primary:disabled { background: var(--sage-light); cursor: not-allowed; }
+
+  .error-msg {
+    background: #fdf0f0;
+    border-left: 3px solid #c0392b;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #c0392b;
+    margin-top: 16px;
+    display: none;
+  }
+
+  /* ===== MAIN APP ===== */
+  #app {
+    display: none;
+    min-height: 100vh;
+  }
+
+  /* Header */
+  .app-header {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 300;
+    letter-spacing: 0.3em;
+    color: var(--sage-dark);
+  }
+
+  .header-user {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .level-badge {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    padding: 4px 12px;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+  }
+
+  .user-name {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .btn-logout {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 0;
+    text-decoration: underline;
+    font-family: 'Noto Serif JP', serif;
+  }
+
+  /* Nav */
+  .app-nav {
+    background: var(--parchment);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    overflow-x: auto;
+    padding: 0 24px;
+  }
+
+  .nav-item {
+    padding: 14px 20px;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all 0.2s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    font-family: 'Noto Serif JP', serif;
+  }
+
+  .nav-item:hover { color: var(--sage-dark); }
+  .nav-item.active {
+    color: var(--sage-dark);
+    border-bottom-color: var(--sage);
+  }
+
+  .nav-item.lv2-only { display: none; }
+
+  /* Content */
+  .app-content {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 32px 24px;
+  }
+
+  .page { display: none; animation: fadeUp 0.4s ease both; }
+  .page.active { display: block; }
+
+  /* Section heading */
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    font-weight: 300;
+    color: var(--sage-dark);
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+  }
+
+  .section-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    letter-spacing: 0.15em;
+    margin-bottom: 32px;
+  }
+
+  /* Cards */
+  .card {
+    background: white;
+    border: 1px solid var(--border);
+    padding: 28px;
+    margin-bottom: 16px;
+  }
+
+  .card-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--brown);
+    margin-bottom: 12px;
+    letter-spacing: 0.05em;
+  }
+
+  .card p {
+    font-size: 14px;
+    line-height: 1.9;
+    color: var(--text);
+  }
+
+  /* Herb grid */
+  .herb-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+  }
+
+  .herb-card {
+    background: white;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .herb-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--sage-light);
+    transform: scaleX(0);
+    transition: transform 0.2s;
+  }
+
+  .herb-card:hover { border-color: var(--sage-light); }
+  .herb-card:hover::after { transform: scaleX(1); }
+
+  .herb-card-img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+    background: var(--parchment);
+  }
+
+  .herb-card-body {
+    padding: 18px 20px 20px;
+  }
+
+  .herb-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--sage-dark);
+    margin-bottom: 2px;
+  }
+
+  .herb-name-ja {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    margin-bottom: 10px;
+  }
+
+  .herb-keyword {
+    font-size: 13px;
+    color: var(--brown);
+    margin-bottom: 8px;
+    font-weight: 400;
+  }
+
+  .herb-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin-bottom: 10px;
+  }
+
+  .herb-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .herb-tag {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    padding: 3px 10px;
+    background: var(--parchment);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
+
+  /* Seasons */
+  .season-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .season-card {
+    padding: 20px 16px;
+    text-align: center;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .season-card:hover, .season-card.active {
+    background: var(--sage-dark);
+    color: white;
+    border-color: var(--sage-dark);
+  }
+
+  .season-card:hover .season-name, .season-card.active .season-name { color: white; }
+  .season-card:hover .season-sub, .season-card.active .season-sub { color: rgba(255,255,255,0.7); }
+
+  .season-icon { font-size: 24px; margin-bottom: 8px; }
+
+  .season-name {
+    font-size: 13px;
+    letter-spacing: 0.15em;
+    color: var(--text);
+  }
+
+  .season-sub {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  /* Season content */
+  .season-content {
+    background: white;
+    border: 1px solid var(--border);
+    padding: 28px;
+    display: none;
+  }
+
+  .season-content.active { display: block; animation: fadeUp 0.3s ease both; }
+
+  /* Contraindication table */
+  .contra-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .contra-table th {
+    background: var(--parchment);
+    padding: 10px 16px;
+    text-align: left;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    font-size: 11px;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .contra-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.7;
+  }
+
+  .contra-table tr:last-child td { border-bottom: none; }
+
+  /* Record form (Lv2) */
+  .record-form .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .record-form .form-row.full { grid-template-columns: 1fr; }
+
+  .record-form label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .record-form input,
+  .record-form textarea,
+  .record-form select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    background: var(--cream);
+    font-family: 'Noto Serif JP', serif;
+    font-size: 13px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .record-form input:focus,
+  .record-form textarea:focus,
+  .record-form select:focus {
+    border-color: var(--sage);
+    background: white;
+  }
+
+  .record-form textarea { resize: vertical; min-height: 80px; }
+
+  .btn-save {
+    padding: 12px 32px;
+    background: var(--gold);
+    color: white;
+    border: none;
+    font-family: 'Noto Serif JP', serif;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .btn-save:hover { background: var(--brown); }
+
+  /* Record list */
+  .record-list-item {
+    background: white;
+    border: 1px solid var(--border);
+    padding: 20px 24px;
+    margin-bottom: 10px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .record-date {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    color: var(--sage);
+    text-align: center;
+    min-width: 60px;
+  }
+
+  .record-date span {
+    display: block;
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: 'Noto Serif JP', serif;
+    margin-top: 2px;
+  }
+
+  .record-info { font-size: 13px; }
+  .record-client { font-weight: 400; color: var(--text); margin-bottom: 4px; }
+  .record-herbs { color: var(--text-muted); font-size: 12px; }
+
+  /* Moon badge */
+  .moon-badge {
+    font-size: 18px;
+  }
+
+  /* FAQ accordion */
+  .faq-item {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .faq-q {
+    padding: 16px 0;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    color: var(--text);
+  }
+
+  .faq-q::after {
+    content: '+';
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    color: var(--sage);
+    transition: transform 0.2s;
+  }
+
+  .faq-item.open .faq-q::after { transform: rotate(45deg); }
+
+  .faq-a {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.9;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s;
+  }
+
+  .faq-item.open .faq-a {
+    max-height: 300px;
+    padding-bottom: 16px;
+  }
+
+  /* Training notice */
+  .notice-card {
+    background: linear-gradient(135deg, var(--sage-dark), var(--brown));
+    color: white;
+    padding: 32px;
+    margin-bottom: 32px;
+  }
+
+  .notice-card .notice-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 300;
+    letter-spacing: 0.1em;
+    margin-bottom: 10px;
+  }
+
+  .notice-card p {
+    font-size: 13px;
+    line-height: 1.8;
+    opacity: 0.9;
+  }
+
+  /* PDF button */
+  .btn-pdf {
+    padding: 12px 28px;
+    background: white;
+    color: var(--sage-dark);
+    border: 1px solid var(--sage);
+    font-family: 'Noto Serif JP', serif;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-block;
+    margin-top: 16px;
+  }
+
+  .btn-pdf:hover {
+    background: var(--sage-dark);
+    color: white;
+    border-color: var(--sage-dark);
+  }
+
+  /* Success toast */
+  .toast {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    background: var(--sage-dark);
+    color: white;
+    padding: 14px 24px;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    z-index: 1000;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s;
+    pointer-events: none;
+  }
+
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  /* Loading */
+  .loading {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-muted);
+    font-size: 13px;
+    letter-spacing: 0.15em;
+  }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Mobile */
+  @media (max-width: 600px) {
+    .login-card { padding: 40px 28px; margin: 16px; }
+    .season-grid { grid-template-columns: repeat(2, 1fr); }
+    .record-form .form-row { grid-template-columns: 1fr; }
+    .record-list-item { grid-template-columns: auto 1fr; }
+    .moon-badge { display: none; }
+    .app-content { padding: 20px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN ===== -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <img class="logo-img" src="img/IMG_9287.jpeg" alt="BLOSSOM STEAM">
+      <div class="divider"></div>
+      <div class="sub">ハーブメンバーズ</div>
+    </div>
+    <div class="form-group">
+      <label>メールアドレス</label>
+      <input type="email" id="login-email" placeholder="登録済みのメールアドレス" autocomplete="email">
+    </div>
+    <button class="btn-primary" id="login-btn" onclick="doLogin()">ログイン</button>
+    <div class="error-msg" id="login-error"></div>
+  </div>
+</div>
+
+<!-- ===== APP ===== -->
+<div id="app">
+  <header class="app-header">
+    <div class="header-brand">
+      <img src="img/IMG_9287.jpeg" alt="BLOSSOM" style="height:36px;width:auto;opacity:0.85;vertical-align:middle;">
+    </div>
+    <div class="header-user">
+      <span class="level-badge" id="header-level"></span>
+      <span class="user-name" id="header-name"></span>
+      <button class="btn-logout" onclick="doLogout()">ログアウト</button>
+    </div>
+  </header>
+
+  <nav class="app-nav">
+    <button class="nav-item active" onclick="showPage('blend', this)">ブレンド一覧</button>
+    <button class="nav-item" onclick="showPage('season', this)">季節のおすすめ</button>
+    <button class="nav-item" onclick="showPage('contra', this)">禁忌・注意事項</button>
+    <button class="nav-item" onclick="showPage('steam', this)">スチーム・ハーブティー</button>
+    <button class="nav-item" onclick="showPage('faq', this)">FAQ</button>
+    <button class="nav-item" onclick="showPage('training', this)">次回講習のご案内</button>
+    <button class="nav-item lv2-only" onclick="showPage('record-new', this)">カルテ記録</button>
+    <button class="nav-item lv2-only" onclick="showPage('record-list', this)">カルテ履歴</button>
+  </nav>
+
+  <main class="app-content">
+
+    <!-- ブレンド一覧 -->
+    <div class="page active" id="page-blend">
+      <div class="section-title">ブレンド一覧</div>
+      <div class="section-sub">チャクラブレンド & 目的別ブレンド</div>
+      <div class="herb-grid">
+        <div class="herb-card">
+          <img class="herb-card-img" src="img/IMG_9297.jpeg" alt="BERRY">
+          <div class="herb-card-body">
+            <div class="herb-name">BERRY</div>
+            <div class="herb-name-ja">ベリー — 第1チャクラ</div>
+            <div class="herb-keyword">身体や心をすっきりしたい時に</div>
+            <div class="herb-desc">〈発汗、毒素排出、利尿、ネガティブエネルギーの浄化〉ほんのりと甘さを感じる香ばしい香り</div>
+            <div class="herb-tags"><span class="herb-tag">デトックス</span><span class="herb-tag">浄化</span><span class="herb-tag">グラウンディング</span></div>
+          </div>
+        </div>
+        <div class="herb-card">
+          <img class="herb-card-img" src="img/IMG_9288.jpeg" alt="MARIE">
+          <div class="herb-card-body">
+            <div class="herb-name">MARIE</div>
+            <div class="herb-name-ja">マリー — 第2チャクラ</div>
+            <div class="herb-keyword">女性特有の身体や心のお悩みに</div>
+            <div class="herb-desc">〈女性ホルモン、PMS、子宮トラブル〉生命だけでなく愛情や魅力を生み出す可憐で愛うしい香り</div>
+            <div class="herb-tags"><span class="herb-tag">ホルモン</span><span class="herb-tag">PMS</span><span class="herb-tag">女性性</span></div>
+          </div>
+        </div>
+        <div class="herb-card">
+          <img class="herb-card-img" src="img/IMG_9299.jpeg" alt="MIMOZA">
+          <div class="herb-card-body">
+            <div class="herb-name">MIMOZA</div>
+            <div class="herb-name-ja">ミモザ — 第3チャクラ</div>
+            <div class="herb-keyword">ホッと一息つきたい時に</div>
+            <div class="herb-desc">〈不眠、ストレス過多、免疫などのバランス調整〉優しさに包み込まれるような見た目と香り</div>
+            <div class="herb-tags"><span class="herb-tag">ストレス</span><span class="herb-tag">不眠</span><span class="herb-tag">浄化</span></div>
+          </div>
+        </div>
+        <div class="herb-card">
+          <img class="herb-card-img" src="img/IMG_9289.jpeg" alt="LEAF">
+          <div class="herb-card-body">
+            <div class="herb-name">LEAF</div>
+            <div class="herb-name-ja">リーフ — 第4チャクラ</div>
+            <div class="herb-keyword">あなた本来の美しさとパワーを</div>
+            <div class="herb-desc">〈高い抗酸化力、心臓や呼吸器の不調に〉トラブルを鎮静し平和をもたらす深みのある香り</div>
+            <div class="herb-tags"><span class="herb-tag">抗酸化</span><span class="herb-tag">心臓</span><span class="herb-tag">浄血</span></div>
+          </div>
+        </div>
+        <div class="herb-card">
+          <img class="herb-card-img" src="img/IMG_9290.jpeg" alt="MAROU">
+          <div class="herb-card-body">
+            <div class="herb-name">MAROU</div>
+            <div class="herb-name-ja">マロウ — 第5チャクラ</div>
+            <div class="herb-keyword">浄化、五感活性化、幸運をもたらす</div>
+            <div class="herb-desc">〈高い抗菌や抗ウイルス、喉や肺の抗炎症〉溜まったものを排出し心身共に風通しを良くする艶っぽい色気のある香り</div>
+            <div class="herb-tags"><span class="herb-tag">抗菌</span><span class="herb-tag">喉</span><span class="herb-tag">浄化</span></div>
+          </div>
+        </div>
+        <div class="herb-card">
+          <img class="herb-card-img" src="img/IMG_9295.jpeg" alt="SUMIRE">
+          <div class="herb-card-body">
+            <div class="herb-name">SUMIRE</div>
+            <div class="herb-name-ja">スミレ — 第6チャクラ</div>
+            <div class="herb-keyword">自律神経、脳、魔除け</div>
+            <div class="herb-desc">〈抗酸化、美白、関節炎、眼精疲労、血流〉直感力や洞察力を開花させ、奥深い爽やかさが心地の良い香り</div>
+            <div class="herb-tags"><span class="herb-tag">直観</span><span class="herb-tag">自律神経</span><span class="herb-tag">美白</span></div>
+          </div>
+        </div>
+        <div class="herb-card">
+          <img class="herb-card-img" src="img/IMG_9291.jpeg" alt="MOKARA">
+          <div class="herb-card-body">
+            <div class="herb-name">MOKARA</div>
+            <div class="herb-name-ja">モカラ — 第7チャクラ</div>
+            <div class="herb-keyword">神経興奮を鎮静し、緩め、余白を</div>
+            <div class="herb-desc">〈神経系、リラックス〉身体や心を緊張状態やストレスから解放し心身を安定した状態へ導く、ポカポカとしたお日様のような優しい香り</div>
+            <div class="herb-tags"><span class="herb-tag">リラックス</span><span class="herb-tag">神経系</span><span class="herb-tag">至福</span></div>
+          </div>
+        </div>
+        <div class="herb-card">
+          <img class="herb-card-img" src="img/IMG_9296.jpeg" alt="WOMAN">
+          <div class="herb-card-body">
+            <div class="herb-name">WOMAN</div>
+            <div class="herb-name-ja">ウーマン</div>
+            <div class="herb-keyword">女性的な色気や艶で魅力的に</div>
+            <div class="herb-desc">〈女性ホルモン、PMS、産後の母体回復促進〉気高くありながらも可愛うしい香り</div>
+            <div class="herb-tags"><span class="herb-tag">ホルモン</span><span class="herb-tag">産後</span><span class="herb-tag">女性美</span></div>
+          </div>
+        </div>
+        <div class="herb-card">
+          <img class="herb-card-img" src="img/IMG_9293.jpeg" alt="SKIN">
+          <div class="herb-card-body">
+            <div class="herb-name">SKIN</div>
+            <div class="herb-name-ja">スキン</div>
+            <div class="herb-keyword">血流、抗酸化</div>
+            <div class="herb-desc">〈肌トラブル、そばかす、ニキビ、疲労回復〉血行を促進しお肌のトーンアップに。華やかな見た目と香りにも魅せられるブレンド</div>
+            <div class="herb-tags"><span class="herb-tag">美肌</span><span class="herb-tag">血流</span><span class="herb-tag">トーンアップ</span></div>
+          </div>
+        </div>
+        <div class="herb-card">
+          <img class="herb-card-img" src="img/IMG_9292.jpeg" alt="ONAKA CARE">
+          <div class="herb-card-body">
+            <div class="herb-name">ONAKA CARE</div>
+            <div class="herb-name-ja">オナカケア</div>
+            <div class="herb-keyword">腸内活動を活発に</div>
+            <div class="herb-desc">〈お腹不調、消化不良、肥満防止、糖尿予防〉煮出すと甘く香る爽やかさで心も爽やかに導く</div>
+            <div class="herb-tags"><span class="herb-tag">腸活</span><span class="herb-tag">消化</span><span class="herb-tag">デトックス</span></div>
+          </div>
+        </div>
+        <div class="herb-card">
+          <img class="herb-card-img" src="img/IMG_9294.jpeg" alt="KOKYUU">
+          <div class="herb-card-body">
+            <div class="herb-name">KOKYUU</div>
+            <div class="herb-name-ja">コキュウ</div>
+            <div class="herb-keyword">免疫力、抗菌</div>
+            <div class="herb-desc">〈抗ウイルス、抗アレルギー、抗炎症、風邪予防〉花粉症の方、季節の変わり目に。優しい清涼感のある香りが不調を和らげます</div>
+            <div class="herb-tags"><span class="herb-tag">免疫</span><span class="herb-tag">抗ウイルス</span><span class="herb-tag">花粉症</span></div>
+          </div>
+        </div>
+        <div class="herb-card">
+          <img class="herb-card-img" src="img/IMG_9298.jpeg" alt="ACTIVITY">
+          <div class="herb-card-body">
+            <div class="herb-name">ACTIVITY</div>
+            <div class="herb-name-ja">アクティビティ</div>
+            <div class="herb-keyword">アンチエイジング、脳、身体の活性</div>
+            <div class="herb-desc">〈記憶力や集中力アップ、抗うつ、偏頭痛〉苛立ちや不安な心を鎮める、力強さのあるスッキリとした香り</div>
+            <div class="herb-tags"><span class="herb-tag">集中</span><span class="herb-tag">抗うつ</span><span class="herb-tag">活力</span></div>
+          </div>
+        </div>
+        <div class="herb-card">
+          <img class="herb-card-img" src="img/IMG_9300.jpeg" alt="PAIN">
+          <div class="herb-card-body">
+            <div class="herb-name">PAIN</div>
+            <div class="herb-name-ja">ペイン</div>
+            <div class="herb-keyword">免疫力強化、炎症や痛みの緩和</div>
+            <div class="herb-desc">〈抗酸化、抗炎症、免疫正常化、頭痛〉免疫に働きかけ炎症を落ち着かせます。クセのある見た目とは異なる落ち着いた香り</div>
+            <div class="herb-tags"><span class="herb-tag">鎮痛</span><span class="herb-tag">抗炎症</span><span class="herb-tag">免疫</span></div>
+          </div>
+        </div>
+        <div class="herb-card">
+          <img class="herb-card-img" src="img/IMG_9301.jpeg" alt="YOMOGI">
+          <div class="herb-card-body">
+            <div class="herb-name">YOMOGI</div>
+            <div class="herb-name-ja">ヨモギ（単品）</div>
+            <div class="herb-keyword">精神力やエネルギーを高める</div>
+            <div class="herb-desc">〈冷え性、浄血、殺菌〉やる気や活力に溢れ、お肌や髪に艶やかさを。鼻から抜ける透明感のあるよもぎの香りは格別</div>
+            <div class="herb-tags"><span class="herb-tag">冷え</span><span class="herb-tag">浄血</span><span class="herb-tag">活力</span></div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:24px;">
+        <button class="btn-pdf" onclick="printBlendList()">ブレンド一覧をPDF出力</button>
+      </div>
+    </div>
+
+    <!-- 季節のおすすめ -->
+    <div class="page" id="page-season">
+      <div class="section-title">季節・月別のおすすめ</div>
+      <div class="section-sub">季節に合わせたブレンド提案</div>
+      <div class="season-grid">
+        <div class="season-card" onclick="showSeason('spring', this)">
+          <div class="season-icon">🌸</div>
+          <div class="season-name">春</div>
+          <div class="season-sub">3月〜5月</div>
+        </div>
+        <div class="season-card" onclick="showSeason('summer', this)">
+          <div class="season-icon">🌿</div>
+          <div class="season-name">夏</div>
+          <div class="season-sub">6月〜8月</div>
+        </div>
+        <div class="season-card" onclick="showSeason('autumn', this)">
+          <div class="season-icon">🍂</div>
+          <div class="season-name">秋</div>
+          <div class="season-sub">9月〜11月</div>
+        </div>
+        <div class="season-card" onclick="showSeason('winter', this)">
+          <div class="season-icon">❄️</div>
+          <div class="season-name">冬</div>
+          <div class="season-sub">12月〜2月</div>
+        </div>
+      </div>
+
+      <div class="season-content" id="season-spring">
+        <div class="card-title">春のおすすめ — 肝・胆／木の気</div>
+        <p>冬の滞りを流し、新しいエネルギーを巡らせる季節。デトックスと浄化を中心に。</p>
+        <div style="margin-top:16px;">
+          <div class="herb-tags" style="gap:10px;">
+            <span class="herb-tag" style="padding:6px 16px;font-size:12px;">LEAF — 心の解放</span>
+            <span class="herb-tag" style="padding:6px 16px;font-size:12px;">ONAKA CARE — 腸のデトックス</span>
+            <span class="herb-tag" style="padding:6px 16px;font-size:12px;">ACTIVITY — 活力の芽吹き</span>
+            <span class="herb-tag" style="padding:6px 16px;font-size:12px;">Horsetail — ミネラル補給</span>
+            <span class="herb-tag" style="padding:6px 16px;font-size:12px;">Mugwort — 血の巡り</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="season-content" id="season-summer">
+        <div class="card-title">夏のおすすめ — 心・小腸／火の気</div>
+        <p>熱を冷まし、心を落ち着かせる季節。水分代謝と精神安定を意識して。</p>
+        <div style="margin-top:16px;">
+          <div class="herb-tags" style="gap:10px;">
+            <span class="herb-tag" style="padding:6px 16px;font-size:12px;">KOKUU — 心の浄化</span>
+            <span class="herb-tag" style="padding:6px 16px;font-size:12px;">SKIN — 夏肌ケア</span>
+            <span class="herb-tag" style="padding:6px 16px;font-size:12px;">Kumazasa — 清涼・抗菌</span>
+            <span class="herb-tag" style="padding:6px 16px;font-size:12px;">Loquat leaf — 肺・皮膚</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="season-content" id="season-autumn">
+        <div class="card-title">秋のおすすめ — 肺・大腸／金の気</div>
+        <p>収斂・引き締めの季節。呼吸器と皮膚を整え、免疫力を高める。</p>
+        <div style="margin-top:16px;">
+          <div class="herb-tags" style="gap:10px;">
+            <span class="herb-tag" style="padding:6px 16px;font-size:12px;">PAIN — 乾燥からくるコリ</span>
+            <span class="herb-tag" style="padding:6px 16px;font-size:12px;">宿便DRINK — 大腸の整え</span>
+            <span class="herb-tag" style="padding:6px 16px;font-size:12px;">Moringa — 栄養補給</span>
+            <span class="herb-tag" style="padding:6px 16px;font-size:12px;">Loquat leaf — 呼吸器サポート</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="season-content" id="season-winter">
+        <div class="card-title">冬のおすすめ — 腎・膀胱／水の気</div>
+        <p>蓄え・温める季節。腎のエネルギーを補い、身体の芯から温める。</p>
+        <div style="margin-top:16px;">
+          <div class="herb-tags" style="gap:10px;">
+            <span class="herb-tag" style="padding:6px 16px;font-size:12px;">BERRY — 生命力の貯蔵</span>
+            <span class="herb-tag" style="padding:6px 16px;font-size:12px;">WOMAN — ホルモン安定</span>
+            <span class="herb-tag" style="padding:6px 16px;font-size:12px;">Ginger — 温め・循環</span>
+            <span class="herb-tag" style="padding:6px 16px;font-size:12px;">ACTIVITY — 冬の活力維持</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 禁忌 -->
+    <div class="page" id="page-contra">
+      <div class="section-title">禁忌・注意事項</div>
+      <div class="section-sub">施術前に必ずご確認ください</div>
+      <div class="card">
+        <table class="contra-table">
+          <tr>
+            <th style="width:160px;">対象</th>
+            <th>禁忌・注意点</th>
+          </tr>
+          <tr>
+            <td>妊娠中（初期）</td>
+            <td>Mugwort、Ginger（高濃度）は禁忌。全ブレンド使用前に確認。</td>
+          </tr>
+          <tr>
+            <td>授乳中</td>
+            <td>アルコール抽出のものは避ける。ハーブティーは低濃度で。</td>
+          </tr>
+          <tr>
+            <td>高血圧・心疾患</td>
+            <td>ACTIVITY・Gingerの大量摂取に注意。カフェイン含有ブレンド禁忌。</td>
+          </tr>
+          <tr>
+            <td>ホルモン依存性疾患</td>
+            <td>WOMAN・MARIEは慎重に。エストロゲン様作用のある成分に注意。</td>
+          </tr>
+          <tr>
+            <td>薬剤服用中</td>
+            <td>抗凝固剤・甲状腺薬との相互作用あり。医師確認を推奨。</td>
+          </tr>
+          <tr>
+            <td>腎臓・肝臓疾患</td>
+            <td>デトックス系ブレンドは負担になる場合あり。少量から。</td>
+          </tr>
+          <tr>
+            <td>アレルギー</td>
+            <td>キク科（Mugwort・Loquat）アレルギーに注意。パッチテスト推奨。</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- スチーム・ハーブティー -->
+    <div class="page" id="page-steam">
+      <div class="section-title">スチーム・ハーブティー</div>
+      <div class="section-sub">使い方ガイド</div>
+      <div class="card">
+        <div class="card-title">ハーブスチーム</div>
+        <p>
+          【基本の使い方】大きめの鍋やボウルにお湯（約1L）を注ぎ、ブレンド小さじ1〜2を加えます。タオルで頭を覆い、5〜10分間蒸気を顔・首に当ててください。目は必ず閉じます。<br><br>
+          【頻度の目安】週2〜3回が理想。肌が敏感な方は週1回から始めてください。<br><br>
+          【おすすめブレンド】SKIN、KOKUU、LEAF、SUMIRE
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-title">ハーブティー</div>
+        <p>
+          【基本の淹れ方】ティーポットにブレンド小さじ1（約2g）を入れ、沸騰直後のお湯150〜200mlを注ぎます。3〜5分蒸らしてからお召し上がりください。<br><br>
+          【1日の目安】1〜3杯。就寝前はリラックス系（LEAF、KOKUU、SUMIRE）がおすすめです。<br><br>
+          【冷やして飲む場合】通常の2倍の濃さで淹れ、氷を入れてお楽しみください。<br><br>
+          【保存方法】直射日光・高温多湿を避け、密閉容器で保管。開封後は3〜6ヶ月以内に使い切るのが理想。
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-title">単品ハーブの目安量</div>
+        <p>
+          Horsetail（スギナ）: 小さじ1/ティーポット<br>
+          Mugwort（よもぎ）: 小さじ1/2〜1（香りが強め）<br>
+          Loquat leaf（びわ葉）: 小さじ1（刻んだもの）<br>
+          Ginger（ショウガ）: 小さじ1/4〜1/2（辛みあり）<br>
+          Moringa（モリンガ）: 小さじ1〜2（癖が少ない）<br>
+          Kumazasa（熊笹）: 小さじ1（独特の風味）
+        </p>
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="page" id="page-faq">
+      <div class="section-title">よくある質問</div>
+      <div class="section-sub">FAQ</div>
+      <div class="card" style="padding:0 28px;">
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">ブレンドの保存期間を教えてください</div>
+          <div class="faq-a">未開封の場合は製造から2年が目安です。開封後は半年以内に使い切ることをお勧めします。直射日光・高温多湿を避け、密閉容器で保管してください。</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">複数のブレンドを同時に使ってもいいですか？</div>
+          <div class="faq-a">基本的には問題ありませんが、1日2〜3種類を目安にしてください。チャクラブレンドと目的別ブレンドの組み合わせが効果的です。</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">妊娠中の使用はどうすればいいですか？</div>
+          <div class="faq-a">妊娠初期はMugwort（よもぎ）など子宮収縮作用のあるハーブは避けてください。ご不安な場合は使用を控え、必ず医師にご相談ください。SKIN、COKUUなど比較的安全なブレンドもありますが、必ず「禁忌・注意事項」をご確認ください。</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">お客様にそのまま販売できますか？</div>
+          <div class="faq-a">BLOSSOMの商品は現在インストラクター・ディレクター向けの卸販売のみです。お客様への小売りをご希望の場合はMakiまでご相談ください。</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">ブレンドのオーダーはいつできますか？</div>
+          <div class="faq-a">毎月月初に発注受付をしています。詳細はDiscordのお知らせをご確認ください。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 次回講習 -->
+    <div class="page" id="page-training">
+      <div class="section-title">次回講習のご案内</div>
+      <div class="section-sub">ステップアップについて</div>
+      <div class="notice-card">
+        <div class="notice-title">講習②へのご案内</div>
+        <p>
+          講習①を修了されたメンバーの皆様へ。<br>
+          次のステップ「講習②」では、カルテ記録・身体評価×ハーブ選定・カウンセリング技術など、より深い実践スキルを学びます。<br><br>
+          詳細・日程はDiscordにてご案内しています。ご参加をお待ちしています。
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-title">講習②で学べること</div>
+        <p>
+          ・カルテ記録と施術記録の管理<br>
+          ・ハーブ深掘り（成分・薬理）<br>
+          ・トークスクリプト・カウンセリング<br>
+          ・香りの読み取りと提案<br>
+          ・身体評価×ハーブ選定<br>
+          ・新月満月に合わせたお客様提案<br>
+          ・お客様別履歴管理
+        </p>
+      </div>
+    </div>
+
+    <!-- カルテ記録（レベル②） -->
+    <div class="page" id="page-record-new">
+      <div class="section-title">カルテ記録</div>
+      <div class="section-sub">施術記録を保存します</div>
+      <div class="card">
+        <div class="record-form">
+          <div class="form-row">
+            <div>
+              <label>お客様名</label>
+              <input type="text" id="r-client" placeholder="例：田中様">
+            </div>
+            <div>
+              <label>施術日</label>
+              <input type="date" id="r-date">
+            </div>
+          </div>
+          <div class="form-row">
+            <div>
+              <label>使用ブレンド</label>
+              <input type="text" id="r-herbs" placeholder="例：LEAF, ONAKA CARE">
+            </div>
+            <div>
+              <label>月相</label>
+              <select id="r-moon">
+                <option value="">選択</option>
+                <option value="🌑 新月">🌑 新月</option>
+                <option value="🌒 三日月">🌒 三日月</option>
+                <option value="🌓 上弦の月">🌓 上弦の月</option>
+                <option value="🌔 十三夜">🌔 十三夜</option>
+                <option value="🌕 満月">🌕 満月</option>
+                <option value="🌖 十六夜">🌖 十六夜</option>
+                <option value="🌗 下弦の月">🌗 下弦の月</option>
+                <option value="🌘 晦日月">🌘 晦日月</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row full">
+            <div>
+              <label>身体評価・チェック内容</label>
+              <textarea id="r-body" placeholder="腹診・体質・訴えなど"></textarea>
+            </div>
+          </div>
+          <div class="form-row full">
+            <div>
+              <label>施術メモ・所見</label>
+              <textarea id="r-notes" placeholder="施術内容・反応・次回への申し送りなど"></textarea>
+            </div>
+          </div>
+          <button class="btn-save" onclick="saveRecord()">保存する</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- カルテ履歴（レベル②） -->
+    <div class="page" id="page-record-list">
+      <div class="section-title">カルテ履歴</div>
+      <div class="section-sub">あなたの施術記録</div>
+      <div id="record-list-content"><div class="loading">読み込み中...</div></div>
+    </div>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyAduw_t3XYqja2u8Hj3YPuwyII3B-Rkn3FtmX7Ey6vPlSeXksF2kWgpBonY3TcjATFwA/exec';
+
+let currentUser = null;
+
+// ===== LOGIN =====
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  if (!email) return;
+
+  const btn = document.getElementById('login-btn');
+  const errEl = document.getElementById('login-error');
+  btn.disabled = true;
+  btn.textContent = '確認中...';
+  errEl.style.display = 'none';
+
+  try {
+    const res = await fetch(`${GAS_URL}?action=auth&email=${encodeURIComponent(email)}`);
+    const data = await res.json();
+
+    if (data.ok) {
+      currentUser = data;
+      showApp();
+    } else {
+      errEl.textContent = data.error;
+      errEl.style.display = 'block';
+    }
+  } catch (e) {
+    errEl.textContent = '通信エラーが発生しました。しばらくしてから再度お試しください。';
+    errEl.style.display = 'block';
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'ログイン';
+}
+
+document.getElementById('login-email').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+function showApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+
+  document.getElementById('header-name').textContent = currentUser.name + ' さん';
+  document.getElementById('header-level').textContent = 'レベル ' + currentUser.level;
+
+  if (currentUser.level >= 2) {
+    document.querySelectorAll('.lv2-only').forEach(el => el.style.display = 'block');
+  }
+
+  // 今日の日付をカルテのデフォルトに
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('r-date').value = today;
+}
+
+function doLogout() {
+  currentUser = null;
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-email').value = '';
+  document.getElementById('login-error').style.display = 'none';
+}
+
+// ===== NAV =====
+function showPage(name, navEl) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  navEl.classList.add('active');
+
+  if (name === 'record-list') loadRecords();
+}
+
+// ===== SEASON =====
+function showSeason(s, el) {
+  document.querySelectorAll('.season-card').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.season-content').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('season-' + s).classList.add('active');
+}
+
+// ===== FAQ =====
+function toggleFaq(el) {
+  const item = el.parentElement;
+  item.classList.toggle('open');
+}
+
+// ===== RECORD SAVE =====
+async function saveRecord() {
+  const params = new URLSearchParams({
+    action: 'saveRecord',
+    email: currentUser.email,
+    client_name: document.getElementById('r-client').value,
+    session_date: document.getElementById('r-date').value,
+    herbs_selected: document.getElementById('r-herbs').value,
+    body_assessment: document.getElementById('r-body').value,
+    notes: document.getElementById('r-notes').value,
+    moon_phase: document.getElementById('r-moon').value
+  });
+
+  try {
+    const res = await fetch(`${GAS_URL}?${params}`);
+    const data = await res.json();
+    if (data.ok) {
+      showToast('カルテを保存しました');
+      document.getElementById('r-client').value = '';
+      document.getElementById('r-herbs').value = '';
+      document.getElementById('r-body').value = '';
+      document.getElementById('r-notes').value = '';
+      document.getElementById('r-moon').value = '';
+    } else {
+      showToast('エラー: ' + data.error);
+    }
+  } catch (e) {
+    showToast('通信エラーが発生しました');
+  }
+}
+
+// ===== RECORD LIST =====
+async function loadRecords() {
+  const el = document.getElementById('record-list-content');
+  el.innerHTML = '<div class="loading">読み込み中...</div>';
+
+  try {
+    const res = await fetch(`${GAS_URL}?action=getRecords&email=${encodeURIComponent(currentUser.email)}`);
+    const data = await res.json();
+
+    if (!data.ok) { el.innerHTML = `<div class="loading">${data.error}</div>`; return; }
+
+    if (!data.records || data.records.length === 0) {
+      el.innerHTML = '<div class="loading">まだカルテがありません</div>';
+      return;
+    }
+
+    const sorted = data.records.reverse();
+    el.innerHTML = sorted.map(r => {
+      const d = r.session_date ? r.session_date.toString().slice(5) : '–';
+      const y = r.session_date ? r.session_date.toString().slice(0, 4) : '';
+      return `
+        <div class="record-list-item">
+          <div class="record-date">${d}<span>${y}</span></div>
+          <div class="record-info">
+            <div class="record-client">${r.client_name || '（名前なし）'}</div>
+            <div class="record-herbs">${r.herbs_selected || '–'}</div>
+          </div>
+          <div class="moon-badge">${r.moon_phase ? r.moon_phase.slice(0,2) : ''}</div>
+        </div>`;
+    }).join('');
+  } catch (e) {
+    el.innerHTML = '<div class="loading">読み込みエラー</div>';
+  }
+}
+
+// ===== PDF =====
+function printBlendList() {
+  window.print();
+}
+
+// ===== TOAST =====
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
